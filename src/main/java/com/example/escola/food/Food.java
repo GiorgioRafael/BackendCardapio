@@ -6,8 +6,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import lombok.*;
 
-@Table(name= "foods")
-@Entity(name ="foods")
+@Table(name= "foods") //foods
+@Entity(name ="foods") //foods
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

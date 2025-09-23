@@ -1,3 +1,4 @@
+//PAPEL do foodcontroller: Controlar o crud (create, read, update, delete) da tabela food
 package com.example.escola.controller;
 
 import com.example.escola.food.Food;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController //anotacao para mapear que é um controller. precisa settar o endpoit
-@RequestMapping("foods") //mapeando o endpoint e o determinando como "food"
+@RequestMapping("foods") //mapeando o endpoint e o determinando como "foods"
 
 public class FoodController {
 
@@ -36,4 +37,20 @@ public class FoodController {
         return foodList; //nao é uma boa prática, deve-se criar DTO (Data transfer object)
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @DeleteMapping("/{id}")
+    public void deleteFood(@PathVariable Long id) {
+        repository.deleteById(id);
+    }
+
+    @PutMapping("/{id}")
+    public void updateFood(@PathVariable Long id, @RequestBody FoodRequestDTO data){
+        Food foodData = repository.getReferenceById(id);
+        foodData.setTitle(data.title());
+        foodData.setImage(data.image());
+        foodData.setPrice(data.price());
+        repository.save(foodData);
+    }
+
 }
+
