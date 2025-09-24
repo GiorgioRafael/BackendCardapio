@@ -1,7 +1,10 @@
 package com.example.escola.controller;
 
-import com.example.escola.aluno.*; // Usando wildcard para simplificar
-import com.example.escola.aluno.AlunoService; // Importe o service
+import com.example.escola.dto.aluno.AlunoRequestDTO;
+import com.example.escola.dto.aluno.AlunoResponseDTO;
+import com.example.escola.dal.entities.Aluno;
+import com.example.escola.dal.repositories.AlunoRepository;
+import com.example.escola.services.AlunoService; // Importe o service
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
