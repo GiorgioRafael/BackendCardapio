@@ -1,8 +1,8 @@
 package com.example.escola.controller;
 
-import com.example.escola.dto.user.AuthenticationDTO;
-import com.example.escola.dto.user.LoginResponseDTO;
-import com.example.escola.dto.user.RegisterDTO;
+import com.example.escola.controller.dto.user.AuthenticationDTO;
+import com.example.escola.controller.dto.user.LoginResponseDTO;
+import com.example.escola.controller.dto.user.RegisterDTO;
 import com.example.escola.dal.entities.User;
 import com.example.escola.infra.security.TokenService;
 import com.example.escola.dal.repositories.UserRepository;

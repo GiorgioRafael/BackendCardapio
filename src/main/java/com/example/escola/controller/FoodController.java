@@ -3,8 +3,8 @@ package com.example.escola.controller;
 
 import com.example.escola.dal.entities.Food;
 import com.example.escola.dal.repositories.FoodRepository;
-import com.example.escola.dto.food.FoodRequestDTO;
-import com.example.escola.dto.food.FoodResponseDTO;
+import com.example.escola.controller.dto.food.FoodRequestDTO;
+import com.example.escola.controller.dto.food.FoodResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

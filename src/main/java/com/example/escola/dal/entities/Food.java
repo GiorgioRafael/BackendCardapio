@@ -1,5 +1,5 @@
 package com.example.escola.dal.entities;
-import com.example.escola.dto.food.FoodRequestDTO;
+import com.example.escola.controller.dto.food.FoodRequestDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

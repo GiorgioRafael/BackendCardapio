@@ -2,7 +2,11 @@ package com.example.escola.enums;
 
 public enum UserRole {
     ADMIN("admin"),
-    USER("user");
+    COORDENADOR("coordenador"),
+    PROFESSOR("professor"),
+    SECRETARIA("secretaria"),
+    ALUNO("aluno"),
+    RESPONSAVEL("responsavel");
 
     private String role;
 

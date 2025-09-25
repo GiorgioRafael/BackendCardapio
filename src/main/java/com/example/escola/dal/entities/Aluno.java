@@ -1,8 +1,7 @@
 package com.example.escola.dal.entities;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import com.example.escola.dal.entities.Endereco;
 
 import java.time.LocalDate;
 
@@ -24,16 +23,12 @@ public class Aluno {
     private String rg;
     private LocalDate dataNascimento;
     // --- Endereço
-    private String enderecoCep;
-    private String enderecoLogradouro;
-    private String enderecoNumero;
-    private String enderecoBairro;
-    private String enderecoCidade;
-    private String enderecoEstado;
-    // --- Responsável
-    private String responsavelNome;
-    private String responsavelCpf;
-    private String responsavelTelefoneContato;
+    @OneToOne(mappedBy = "aluno", cascade = CascadeType.ALL)
+    private Endereco endereco;
+
+    @ManyToOne
+    @JoinColumn(name = "responsavel_id") //nullabe
+    private Responsavel responsavel;
 
 
 }
