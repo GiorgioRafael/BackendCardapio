@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class Endereco {
 
     @Id
-    private Long id;
+    private String id;
 
     // Campos do endereço
     private String cep;
@@ -23,9 +23,9 @@ public class Endereco {
     private String estado;
 
     @OneToOne
-    @MapsId //mapeamento de shared private key
-    @JoinColumn(name = "aluno_matricula") // Nome da coluna na tabela 'enderecos'
-    private Aluno aluno;
+    @MapsId
+    @JoinColumn(name = "id")
+    private Pessoa pessoa;
 
     public Endereco(String cep, String logradouro, String numero, String bairro, String cidade, String estado) {
         this.cep = cep;

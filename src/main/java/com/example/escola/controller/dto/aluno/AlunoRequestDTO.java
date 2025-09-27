@@ -1,8 +1,10 @@
 package com.example.escola.controller.dto.aluno;
 
+import com.example.escola.controller.dto.endereco.EnderecoDTO;
+import com.example.escola.controller.dto.responsavel.ResponsavelDTO;
+
 import java.time.LocalDate;
 
-//DATA TRANSFER OBJECT DO ALUNO, aninhado em partes (colocado no mesmo arquivo por conveniencia)
 public record AlunoRequestDTO(
         String nomeCompleto,
         String email,

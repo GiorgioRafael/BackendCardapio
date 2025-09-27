@@ -38,20 +38,13 @@ public class AlunoService {
                 dto.endereco().cidade(),
                 dto.endereco().estado()
             );
-            endereco.setAluno(aluno);
+            endereco.setPessoa(aluno);
             aluno.setEndereco(endereco);
         }
 
         // Busca ou cria o responsável
-        if (dto.responsavel() != null) {
-            Responsavel responsavel = new Responsavel();
-            responsavel.setNome(dto.responsavel().nome());
-            responsavel.setCpf(dto.responsavel().cpf());
-            responsavel.setTelefoneContato(dto.responsavel().telefoneContato());
-
-            // Salvar o responsável antes para ter um ID
-            responsavelRepository.save(responsavel);
-
+        if (dto.responsavel() != null) {Responsavel responsavel = dto.responsavel().toEntity();
+            responsavel = responsavelRepository.save(responsavel); // Salva o responsável antes de associar
             aluno.setResponsavel(responsavel);
         }
         return aluno;

@@ -1,18 +1,33 @@
-    package com.example.escola.controller.dto.responsavel; // Sugestão de novo pacote
+package com.example.escola.controller.dto.responsavel;
 
-    import com.example.escola.dal.entities.Responsavel;
+import com.example.escola.dal.entities.Responsavel;
 
-    public record ResponsavelDTO(
-            String nome,
-            String cpf,
-            String telefoneContato
-    ) {
-        // Novo construtor que aceita a entidade Responsavel
-        public ResponsavelDTO(Responsavel responsavel) {
-            this(
-                    responsavel.getNome(),
-                    responsavel.getCpf(),
-                    responsavel.getTelefoneContato()
-            );
-        }
+public record ResponsavelDTO(
+        String nome,
+        String cpf,
+        String email,
+        String telefoneContato,
+        String parentesco
+) {
+    // Adicione este construtor
+    public ResponsavelDTO(Responsavel responsavel) {
+        this(
+                responsavel.getNome(),
+                responsavel.getCpf(),
+                responsavel.getEmail(),
+                responsavel.getTelefoneContato(),
+                responsavel.getParentesco()
+        );
     }
+    // Método para converter DTO para entidade
+    public Responsavel toEntity() {
+        Responsavel responsavel = new Responsavel();
+        responsavel.setNome(this.nome);
+        responsavel.setCpf(this.cpf);
+        responsavel.setEmail(this.email);
+        responsavel.setTelefoneContato(this.telefoneContato);
+        responsavel.setParentesco(this.parentesco);
+        return responsavel;
+    }
+}
+

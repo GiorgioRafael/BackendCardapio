@@ -26,10 +26,11 @@ public record AlunoResponseDTO(
                 aluno.getCpf(),
                 aluno.getRg(),
                 aluno.getDataNascimento(),
-                // Delega a construção do EnderecoDTO para ele mesmo
+                // Correção: usar "new" para instanciar o EnderecoDTO
                 new EnderecoDTO(aluno.getEndereco()),
                 // Lida com o responsável opcional de forma segura
                 aluno.getResponsavel() != null ? new ResponsavelDTO(aluno.getResponsavel()) : null
         );
     }
+
 }

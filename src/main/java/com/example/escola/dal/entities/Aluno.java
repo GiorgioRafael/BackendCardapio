@@ -1,34 +1,24 @@
 package com.example.escola.dal.entities;
+
+import com.example.escola.dal.entities.User;
 import jakarta.persistence.*;
-import lombok.*;
-import com.example.escola.dal.entities.Endereco;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDate;
+@Entity
+@Table(name = "alunos")
+@Data
+@EqualsAndHashCode(callSuper = true) // Importante para herança com Lombok
+public class Aluno extends Pessoa {
 
-@Table(name= "alunos") //foods
-@Entity(name ="alunos") //foods
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode()
-public class Aluno {
-    @Id
-    // --- Aluno
-    private Long matricula; // primary key
-    private String nomeCompleto; //definir tamanho max
-    private String email; // fica para o reponsável
-    private String telefoneContato;
-    private String cpf;
-    private String rg;
-    private LocalDate dataNascimento;
-    // --- Endereço
-    @OneToOne(mappedBy = "aluno", cascade = CascadeType.ALL)
-    private Endereco endereco;
+    // O 'id', 'nomeCompleto', 'email', 'cpf' e 'endereco' já são herdados de Pessoa.
 
+    @Column(unique = true, nullable = false)
+    private Long matricula; // Este é o identificador de negócio, não a Primary Key.
+
+    // --- Relacionamentos Específicos do Aluno
     @ManyToOne
-    @JoinColumn(name = "responsavel_id") //nullabe
+    @JoinColumn(name = "responsavel_id", nullable = true) // Pode ser nulo
     private Responsavel responsavel;
-
 
 }

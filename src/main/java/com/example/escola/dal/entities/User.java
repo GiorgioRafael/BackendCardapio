@@ -27,12 +27,25 @@ public class User implements UserDetails {
     private String password;
     private UserRole role;
 
+    @OneToOne
+    @JoinColumn(name = "pessoa_id")
+    private Pessoa pessoa;
+
     public User(String login, String password, UserRole role){
         this.login = login;
         this.password = password;
         this.role = role;
     }
+    public User(String login, String password, UserRole role, Pessoa pessoa) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.pessoa = pessoa;
+    }
 
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
