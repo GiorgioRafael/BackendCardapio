@@ -32,6 +32,14 @@ public class AlunoController {
         return ResponseEntity.ok().build();
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders="*")
+    @PostMapping("/batch")
+    public ResponseEntity<Void> saveAlunos(@RequestBody List<AlunoRequestDTO> data) {
+        // 2. CHAME O SERVICE PARA EXECUTAR A LÓGICA DE NEGÓCIO
+        service.matricularNovosAlunos(data);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     public List<AlunoResponseDTO> getAll() {
         return repository.findAll().stream()

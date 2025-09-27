@@ -1,5 +1,6 @@
 package com.example.escola.dal.entities;
 
+import com.example.escola.controller.dto.endereco.EnderecoDTO;
 import com.example.escola.dal.entities.Aluno;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,5 +36,13 @@ public class Endereco {
         this.cidade = cidade;
         this.estado = estado;
 
+    }
+    public Endereco(EnderecoDTO data) {
+        this.setCep(data.cep());
+        this.setLogradouro(data.logradouro());
+        this.setNumero(data.numero());
+        this.setBairro(data.bairro());
+        this.setCidade(data.cidade());
+        this.setEstado(data.estado());
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AlunoService {
@@ -20,7 +22,7 @@ public class AlunoService {
     private ResponsavelRepository responsavelRepository;
 
     private Aluno convertToEntity(AlunoRequestDTO dto) {
-        Aluno aluno = new Aluno();
+        Aluno aluno = new Aluno(dto);
         aluno.setNomeCompleto(dto.nomeCompleto());
         aluno.setEmail(dto.email());
         aluno.setTelefoneContato(dto.telefoneContato());
@@ -58,6 +60,21 @@ public class AlunoService {
         novoAluno.setMatricula(matriculaUnica);
 
         repository.save(novoAluno);
+    }
+    // --- NOVO MÉTODO PARA MATRICULAR VÁRIOS ALUNOS ---
+    public void matricularNovosAlunos(List<AlunoRequestDTO> dtoList) {
+        List<Aluno> novosAlunos = new ArrayList<>();
+
+        // 1. Percorre a lista de DTOs recebida
+        for (AlunoRequestDTO dados : dtoList) {
+            Long matriculaUnica = gerarMatriculaUnica();
+            Aluno novoAluno = new Aluno(dados);
+            novoAluno.setMatricula(matriculaUnica);
+            novosAlunos.add(novoAluno); // Adiciona o novo aluno preparado à lista
+        }
+
+        // 2. Salva TODOS os novos alunos no banco de uma só vez
+        repository.saveAll(novosAlunos);
     }
 
     private Long gerarMatriculaUnica() {
