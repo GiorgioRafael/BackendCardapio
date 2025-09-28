@@ -8,6 +8,7 @@ import com.example.escola.dal.repositories.ResponsavelRepository;
 import com.example.escola.controller.dto.aluno.AlunoRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -15,11 +16,18 @@ import java.util.List;
 
 @Service
 public class AlunoService {
-    @Autowired
-    private AlunoRepository repository;
+    private final AlunoRepository repository;
+    private final EnderecoService enderecoService;
+    private final ResponsavelRepository responsavelRepository;
 
     @Autowired
-    private ResponsavelRepository responsavelRepository;
+    public AlunoService(AlunoRepository repository,
+                        EnderecoService enderecoService,
+                        ResponsavelRepository responsavelRepository) {
+        this.repository = repository;
+        this.enderecoService = enderecoService;
+        this.responsavelRepository = responsavelRepository;
+    }
 
     private Aluno convertToEntity(AlunoRequestDTO dto) {
         Aluno aluno = new Aluno(dto);
@@ -30,47 +38,51 @@ public class AlunoService {
         aluno.setRg(dto.rg());
         aluno.setDataNascimento(dto.dataNascimento());
 
-        // Cria e associa o endereço
-        if (dto.endereco() != null) {
-            Endereco endereco = new Endereco(
-                dto.endereco().cep(),
-                dto.endereco().logradouro(),
-                dto.endereco().numero(),
-                dto.endereco().bairro(),
-                dto.endereco().cidade(),
-                dto.endereco().estado()
-            );
-            endereco.setPessoa(aluno);
-            aluno.setEndereco(endereco);
-        }
-
         // Busca ou cria o responsável
-        if (dto.responsavel() != null) {Responsavel responsavel = dto.responsavel().toEntity();
+        if (dto.responsavel() != null) {
+            Responsavel responsavel = dto.responsavel().toEntity();
             responsavel = responsavelRepository.save(responsavel); // Salva o responsável antes de associar
             aluno.setResponsavel(responsavel);
         }
         return aluno;
     }
 
+    @Transactional
     public void matricularNovoAluno(AlunoRequestDTO dados) {
         Long matriculaUnica = gerarMatriculaUnica();
 
-        // Usar o método de conversão em vez do construtor
+        // Usar o método de conversão
         Aluno novoAluno = convertToEntity(dados);
         novoAluno.setMatricula(matriculaUnica);
 
+        // Verifica se já existe um endereço idêntico no banco
+        if (dados.endereco() != null) {
+            Endereco endereco = enderecoService.findOrCreateEndereco(dados.endereco());
+            novoAluno.setEndereco(endereco);
+        }
+
         repository.save(novoAluno);
     }
-    // --- NOVO MÉTODO PARA MATRICULAR VÁRIOS ALUNOS ---
+
+    @Transactional
     public void matricularNovosAlunos(List<AlunoRequestDTO> dtoList) {
         List<Aluno> novosAlunos = new ArrayList<>();
 
         // 1. Percorre a lista de DTOs recebida
         for (AlunoRequestDTO dados : dtoList) {
             Long matriculaUnica = gerarMatriculaUnica();
-            Aluno novoAluno = new Aluno(dados);
+
+            // Usar o método de conversão
+            Aluno novoAluno = convertToEntity(dados);
             novoAluno.setMatricula(matriculaUnica);
-            novosAlunos.add(novoAluno); // Adiciona o novo aluno preparado à lista
+
+            // Verifica se já existe um endereço idêntico no banco
+            if (dados.endereco() != null) {
+                Endereco endereco = enderecoService.findOrCreateEndereco(dados.endereco());
+                novoAluno.setEndereco(endereco);
+            }
+
+            novosAlunos.add(novoAluno);
         }
 
         // 2. Salva TODOS os novos alunos no banco de uma só vez

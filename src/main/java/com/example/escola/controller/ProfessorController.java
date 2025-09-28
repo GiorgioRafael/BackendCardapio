@@ -49,7 +49,6 @@ public class ProfessorController {
         }
     }
 
-
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProfessor(@PathVariable String id) {

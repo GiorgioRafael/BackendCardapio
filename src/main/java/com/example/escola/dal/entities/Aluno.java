@@ -27,6 +27,9 @@ public class Aluno extends Pessoa {
     @ManyToMany(mappedBy = "alunos")
     private List<Turma> turmas;
 
+    public Aluno(){
+
+    }
 
     public Aluno(AlunoRequestDTO data) {
         // Mapeia os dados simples

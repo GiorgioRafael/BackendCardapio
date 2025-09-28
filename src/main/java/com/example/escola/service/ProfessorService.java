@@ -8,6 +8,7 @@ import com.example.escola.dal.repositories.ProfessorRepository;
 import com.example.escola.enums.ProfessorStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,9 +17,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProfessorService {
-    @Autowired
-    private ProfessorRepository professorRepository;
+    private final ProfessorRepository professorRepository;
+    private final EnderecoService enderecoService;
 
+    @Autowired
+    public ProfessorService(ProfessorRepository professorRepository, EnderecoService enderecoService) {
+        this.professorRepository = professorRepository;
+        this.enderecoService = enderecoService;
+    }
+
+    @Transactional
     public ProfessorResponseDTO createProfessor(ProfessorRequestDTO dto) {
         Professor professor = new Professor();
         professor.setNomeCompleto(dto.nomeCompleto());
@@ -36,8 +44,7 @@ public class ProfessorService {
 
         // Endereco
         if (dto.endereco() != null) {
-            Endereco endereco = new Endereco(dto.endereco());
-            endereco.setPessoa(professor);
+            Endereco endereco = enderecoService.findOrCreateEndereco(dto.endereco());
             professor.setEndereco(endereco);
         }
 
@@ -94,6 +101,7 @@ public class ProfessorService {
         return prefixo + contadorStr;
     }
 
+    @Transactional
     public ProfessorResponseDTO updateProfessor(String id, ProfessorRequestDTO dto) {
         Optional<Professor> optional = professorRepository.findById(id);
         if (optional.isEmpty()) {
@@ -120,32 +128,9 @@ public class ProfessorService {
 
         // Atualiza o endereço somente se estiver presente no DTO
         if (dto.endereco() != null) {
-            Endereco endereco = professor.getEndereco();
-            if (endereco == null) {
-                endereco = new Endereco(dto.endereco());
-                endereco.setPessoa(professor);
-                professor.setEndereco(endereco);
-            } else {
-                // Atualiza somente os campos não nulos do endereço
-                if (dto.endereco().cep() != null) {
-                    endereco.setCep(dto.endereco().cep());
-                }
-                if (dto.endereco().logradouro() != null) {
-                    endereco.setLogradouro(dto.endereco().logradouro());
-                }
-                if (dto.endereco().numero() != null) {
-                    endereco.setNumero(dto.endereco().numero());
-                }
-                if (dto.endereco().bairro() != null) {
-                    endereco.setBairro(dto.endereco().bairro());
-                }
-                if (dto.endereco().cidade() != null) {
-                    endereco.setCidade(dto.endereco().cidade());
-                }
-                if (dto.endereco().estado() != null) {
-                    endereco.setEstado(dto.endereco().estado());
-                }
-            }
+            // Verifica se já existe endereço idêntico ou cria um novo
+            Endereco endereco = enderecoService.findOrCreateEndereco(dto.endereco());
+            professor.setEndereco(endereco);
         }
 
         Professor saved = professorRepository.save(professor);

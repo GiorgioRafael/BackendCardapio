@@ -23,7 +23,8 @@ public abstract class Pessoa {
     private String telefoneContato;
 
 
-    @OneToOne(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
     @OneToOne(mappedBy = "pessoa")
