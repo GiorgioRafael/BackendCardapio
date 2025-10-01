@@ -1,7 +1,9 @@
 package com.example.escola.service;
 
+import com.example.escola.controller.dto.pessoa.PessoaRequestDTO;
 import com.example.escola.dal.entities.Aluno;
 import com.example.escola.dal.entities.Endereco;
+import com.example.escola.dal.entities.Pessoa;
 import com.example.escola.dal.entities.Responsavel;
 import com.example.escola.dal.repositories.AlunoRepository;
 import com.example.escola.dal.repositories.ResponsavelRepository;
@@ -19,14 +21,16 @@ public class AlunoService {
     private final AlunoRepository repository;
     private final EnderecoService enderecoService;
     private final ResponsavelRepository responsavelRepository;
+    private final PessoaService pessoaService;
 
     @Autowired
     public AlunoService(AlunoRepository repository,
                         EnderecoService enderecoService,
-                        ResponsavelRepository responsavelRepository) {
+                        ResponsavelRepository responsavelRepository, PessoaService pessoaService) {
         this.repository = repository;
         this.enderecoService = enderecoService;
         this.responsavelRepository = responsavelRepository;
+        this.pessoaService = pessoaService;
     }
 
     private Aluno convertToEntity(AlunoRequestDTO dto) {
@@ -51,14 +55,29 @@ public class AlunoService {
     public void matricularNovoAluno(AlunoRequestDTO dados) {
         Long matriculaUnica = gerarMatriculaUnica();
 
-        // Usar o método de conversão
-        Aluno novoAluno = convertToEntity(dados);
+        // Criar a pessoa através do PessoaService
+        PessoaRequestDTO pessoaDTO = new PessoaRequestDTO(
+                dados.nomeCompleto(),
+                dados.email(),
+                dados.cpf(),
+                dados.rg(),
+                dados.dataNascimento(),
+                dados.telefoneContato(),
+                dados.endereco()
+        );
+
+        Pessoa pessoa = pessoaService.createAndGetPessoa(pessoaDTO);
+
+        // Criar o aluno associado à pessoa
+        Aluno novoAluno = new Aluno();
+        novoAluno.setPessoa(pessoa);
         novoAluno.setMatricula(matriculaUnica);
 
-        // Verifica se já existe um endereço idêntico no banco
-        if (dados.endereco() != null) {
-            Endereco endereco = enderecoService.findOrCreateEndereco(dados.endereco());
-            novoAluno.setEndereco(endereco);
+        // Busca ou cria o responsável
+        if (dados.responsavel() != null) {
+            Responsavel responsavel = dados.responsavel().toEntity();
+            responsavel = responsavelRepository.save(responsavel);
+            novoAluno.setResponsavel(responsavel);
         }
 
         repository.save(novoAluno);

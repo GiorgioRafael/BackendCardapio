@@ -4,29 +4,38 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED) // Estratégia de herança
+@Table(name = "pessoas")
 @Data
-//abstract por que não existira pessoa generica
-public abstract class Pessoa {
+public class Pessoa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String nomeCompleto;
-    private String email; //null
-    private String cpf; //null
-    private String rg; //null
+    private String email;
+    private String cpf;
+    private String rg;
     private LocalDate dataNascimento;
     private String telefoneContato;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
-    @OneToOne(mappedBy = "pessoa")
+    @OneToOne(mappedBy = "pessoa", cascade = CascadeType.ALL)
     private User user;
+
+    // Remover as relações bidirecionais que causam ciclos
+    // e deixar apenas a navegação unidirecional
+
+    public Set<String> getRoles() {
+        Set<String> roles = new HashSet<>();
+        // Usar queries ou outra estratégia para determinar roles
+        return roles;
+    }
 }

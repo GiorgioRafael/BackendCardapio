@@ -1,8 +1,10 @@
 package com.example.escola.service;
 
+import com.example.escola.controller.dto.pessoa.PessoaRequestDTO;
 import com.example.escola.controller.dto.professor.ProfessorRequestDTO;
 import com.example.escola.controller.dto.professor.ProfessorResponseDTO;
 import com.example.escola.dal.entities.Endereco;
+import com.example.escola.dal.entities.Pessoa;
 import com.example.escola.dal.entities.Professor;
 import com.example.escola.dal.repositories.ProfessorRepository;
 import com.example.escola.enums.ProfessorStatus;
@@ -19,21 +21,39 @@ import java.util.stream.Collectors;
 public class ProfessorService {
     private final ProfessorRepository professorRepository;
     private final EnderecoService enderecoService;
+    private final PessoaService pessoaService; // Adicionado o campo pessoaService
 
     @Autowired
-    public ProfessorService(ProfessorRepository professorRepository, EnderecoService enderecoService) {
+    public ProfessorService(ProfessorRepository professorRepository,
+                            EnderecoService enderecoService,
+                            PessoaService pessoaService) {
         this.professorRepository = professorRepository;
         this.enderecoService = enderecoService;
+        this.pessoaService = pessoaService;
     }
 
     @Transactional
     public ProfessorResponseDTO createProfessor(ProfessorRequestDTO dto) {
+        // Criar a pessoa através do PessoaService
+        PessoaRequestDTO pessoaDTO = new PessoaRequestDTO(
+                dto.nomeCompleto(),
+                dto.email(),
+                dto.cpf(),
+                null, // rg não está disponível no DTO
+                null, // dataNascimento não está disponível no DTO
+                dto.telefoneContato(),
+                dto.endereco()
+        );
+
+        Pessoa pessoa = pessoaService.createAndGetPessoa(pessoaDTO);
+
+        // Criar o professor associado à pessoa
         Professor professor = new Professor();
-        professor.setNomeCompleto(dto.nomeCompleto());
-        professor.setEmail(dto.email());
-        professor.setCpf(dto.cpf());
-        professor.setTelefoneContato(dto.telefoneContato());
+        professor.setPessoa(pessoa);
         professor.setDataContratacao(dto.dataContratacao());
+        // Campos formacaoAcademica e biografia não estão no DTO
+        professor.setFormacaoAcademica(null);
+        professor.setBiografia(null);
 
         // Gerar registro funcional no formato PROF-AACCC (AA=ano atual, CCC=contador)
         String registroFuncional = gerarRegistroFuncional();
@@ -41,12 +61,6 @@ public class ProfessorService {
 
         // Definir status como ATIVO por padrão
         professor.setProfessorStatus(ProfessorStatus.ATIVO);
-
-        // Endereco
-        if (dto.endereco() != null) {
-            Endereco endereco = enderecoService.findOrCreateEndereco(dto.endereco());
-            professor.setEndereco(endereco);
-        }
 
         Professor saved = professorRepository.save(professor);
         return new ProfessorResponseDTO(saved);
@@ -61,7 +75,7 @@ public class ProfessorService {
     public ProfessorResponseDTO getProfessorById(String id) {
         Optional<Professor> optional = professorRepository.findById(id);
         if (optional.isEmpty()) {
-            throw new RuntimeException("Professor not found");
+            throw new RuntimeException("Professor não encontrado");
         }
         return new ProfessorResponseDTO(optional.get());
     }
@@ -95,42 +109,32 @@ public class ProfessorService {
                     .orElse(0) + 1;
         }
 
-        // Formata o contador com zeros à esquerda para ter 3 dígitos
-        String contadorStr = String.format("%03d", contador);
-
-        return prefixo + contadorStr;
+        return prefixo + String.format("%03d", contador);
     }
 
     @Transactional
     public ProfessorResponseDTO updateProfessor(String id, ProfessorRequestDTO dto) {
-        Optional<Professor> optional = professorRepository.findById(id);
-        if (optional.isEmpty()) {
-            throw new RuntimeException("Professor not found");
-        }
-        Professor professor = optional.get();
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
 
-        // Atualiza somente os campos não nulos
-        if (dto.nomeCompleto() != null) {
-            professor.setNomeCompleto(dto.nomeCompleto());
+        // Usar o PessoaService para atualizar os dados da pessoa
+        if (professor.getPessoa() != null) {
+            PessoaRequestDTO pessoaDTO = new PessoaRequestDTO(
+                    dto.nomeCompleto(),
+                    dto.email(),
+                    dto.cpf(),
+                    professor.getRg(), // Mantém o RG existente
+                    professor.getDataNascimento(), // Mantém a data de nascimento existente
+                    dto.telefoneContato(),
+                    dto.endereco()
+            );
+
+            pessoaService.updatePessoa(professor.getPessoa().getId(), pessoaDTO);
         }
-        if (dto.email() != null) {
-            professor.setEmail(dto.email());
-        }
-        if (dto.cpf() != null) {
-            professor.setCpf(dto.cpf());
-        }
-        if (dto.telefoneContato() != null) {
-            professor.setTelefoneContato(dto.telefoneContato());
-        }
+
+        // Atualiza os campos específicos do professor
         if (dto.dataContratacao() != null) {
             professor.setDataContratacao(dto.dataContratacao());
-        }
-
-        // Atualiza o endereço somente se estiver presente no DTO
-        if (dto.endereco() != null) {
-            // Verifica se já existe endereço idêntico ou cria um novo
-            Endereco endereco = enderecoService.findOrCreateEndereco(dto.endereco());
-            professor.setEndereco(endereco);
         }
 
         Professor saved = professorRepository.save(professor);

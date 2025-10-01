@@ -1,52 +1,116 @@
 package com.example.escola.dal.entities;
 
 import com.example.escola.controller.dto.aluno.AlunoRequestDTO;
-import com.example.escola.dal.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "alunos")
 @Data
-@EqualsAndHashCode(callSuper = true) // Importante para herança com Lombok
-public class Aluno extends Pessoa {
+public class Aluno {
 
-    // O 'id', 'nomeCompleto', 'email', 'cpf' e 'endereco' já são herdados de Pessoa.
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name= "pessoa_id")
+    private Pessoa pessoa;
 
     @Column(unique = true, nullable = false)
-    private Long matricula; // Este é o identificador de negócio, não a Primary Key.
+    private Long matricula;
 
-    // --- Relacionamentos Específicos do Aluno
     @ManyToOne
-    @JoinColumn(name = "responsavel_id", nullable = true) // Pode ser nulo
+    @JoinColumn(name = "responsavel_id", nullable = true)
     private Responsavel responsavel;
 
     @ManyToMany(mappedBy = "alunos")
     private List<Turma> turmas;
 
     public Aluno(){
-
+        this.pessoa = new Pessoa();
     }
 
     public Aluno(AlunoRequestDTO data) {
-        // Mapeia os dados simples
-        this.setNomeCompleto(data.nomeCompleto());
-        this.setEmail(data.email());
-        this.setCpf(data.cpf());
-        this.setRg(data.rg());
-        this.setDataNascimento(data.dataNascimento());
-        this.setTelefoneContato(data.telefoneContato());
+        this();
+        // Mapeia os dados para a pessoa
+        this.pessoa.setNomeCompleto(data.nomeCompleto());
+        this.pessoa.setEmail(data.email());
+        this.pessoa.setCpf(data.cpf());
+        this.pessoa.setRg(data.rg());
+        this.pessoa.setDataNascimento(data.dataNascimento());
+        this.pessoa.setTelefoneContato(data.telefoneContato());
 
-        // Cria e associa a nova entidade Endereco a partir do EnderecoDTO
+        // Cria e associa a nova entidade Endereco à pessoa
         if (data.endereco() != null) {
-            this.setEndereco(new Endereco(data.endereco()));
+            this.pessoa.setEndereco(new Endereco(data.endereco()));
         }
+    }
 
-        // Associa o Responsavel (a lógica de buscar ou criar o responsável ficaria no Service)
-        // Aqui, estamos apenas preparando o Aluno. O Responsavel precisa ser gerenciado separadamente.
-        // this.responsavel = ... ; // Isso será feito no Service
+    // Métodos de conveniência
+    public String getNomeCompleto() {
+        return pessoa != null ? pessoa.getNomeCompleto() : null;
+    }
+
+    public void setNomeCompleto(String nomeCompleto) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setNomeCompleto(nomeCompleto);
+    }
+
+    public String getEmail() {
+        return pessoa != null ? pessoa.getEmail() : null;
+    }
+
+    public void setEmail(String email) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setEmail(email);
+    }
+
+    public String getCpf() {
+        return pessoa != null ? pessoa.getCpf() : null;
+    }
+
+    public void setCpf(String cpf) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setCpf(cpf);
+    }
+
+    public String getRg() {
+        return pessoa != null ? pessoa.getRg() : null;
+    }
+
+    public void setRg(String rg) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setRg(rg);
+    }
+
+    public LocalDate getDataNascimento() {
+        return pessoa != null ? pessoa.getDataNascimento() : null;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setDataNascimento(dataNascimento);
+    }
+
+    public String getTelefoneContato() {
+        return pessoa != null ? pessoa.getTelefoneContato() : null;
+    }
+
+    public void setTelefoneContato(String telefoneContato) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setTelefoneContato(telefoneContato);
+    }
+
+    public Endereco getEndereco() {
+        return pessoa != null ? pessoa.getEndereco() : null;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        if (pessoa == null) pessoa = new Pessoa();
+        pessoa.setEndereco(endereco);
     }
 }
