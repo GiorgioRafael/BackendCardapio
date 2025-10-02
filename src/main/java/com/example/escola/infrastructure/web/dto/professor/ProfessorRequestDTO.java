@@ -8,6 +8,8 @@ public record ProfessorRequestDTO(
         String nomeCompleto,
         String email,
         String cpf,
+        String rg,
+        LocalDate dataNascimento,
         String telefoneContato,
         LocalDate dataContratacao,
 

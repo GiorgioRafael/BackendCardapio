@@ -111,8 +111,7 @@ public class AlunoService {
     private Long gerarMatriculaUnica() {
         Long matricula;
         do {
-            long numeroAleatorio = 100000 + new SecureRandom().nextInt(900000);
-            matricula = numeroAleatorio;
+            matricula = (long) (100000 + new SecureRandom().nextInt(900000));
         } while (repository.existsById(matricula));
 
         return matricula;

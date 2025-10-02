@@ -1,6 +1,7 @@
 package com.example.escola.application.service;
 
 import com.example.escola.infrastructure.web.dto.pessoa.PessoaRequestDTO;
+import com.example.escola.infrastructure.web.dto.professor.ProfessorDetailDTO;
 import com.example.escola.infrastructure.web.dto.professor.ProfessorRequestDTO;
 import com.example.escola.infrastructure.web.dto.professor.ProfessorResponseDTO;
 import com.example.escola.domain.entities.Pessoa;
@@ -38,8 +39,8 @@ public class ProfessorService {
                 dto.nomeCompleto(),
                 dto.email(),
                 dto.cpf(),
-                null, // rg não está disponível no DTO
-                null, // dataNascimento não está disponível no DTO
+                dto.rg(),
+                dto.dataNascimento(),
                 dto.telefoneContato(),
                 dto.endereco()
         );
@@ -69,6 +70,20 @@ public class ProfessorService {
         return professorRepository.findAll().stream()
                 .map(ProfessorResponseDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfessorDetailDTO> getAllProfessorsDetailedData() {
+        return professorRepository.findAll().stream()
+                .map(ProfessorDetailDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ProfessorDetailDTO getProfessorDetailedDataById(String id) {
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
+        return new ProfessorDetailDTO(professor);
     }
 
     public ProfessorResponseDTO getProfessorById(String id) {

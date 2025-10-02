@@ -1,5 +1,6 @@
 package com.example.escola.infrastructure.web.controllers;
 
+import com.example.escola.infrastructure.web.dto.professor.ProfessorDetailDTO;
 import com.example.escola.infrastructure.web.dto.professor.ProfessorRequestDTO;
 import com.example.escola.infrastructure.web.dto.professor.ProfessorResponseDTO;
 import com.example.escola.application.service.ProfessorService;
@@ -25,6 +26,21 @@ public class ProfessorController {
     public ResponseEntity<ProfessorResponseDTO> getProfessorById(@PathVariable String id) {
         try {
             ProfessorResponseDTO professor = service.getProfessorById(id);
+            return ResponseEntity.ok(professor);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/debug/all")
+    public List<ProfessorDetailDTO> getAllProfessoresDebug() {
+        return service.getAllProfessorsDetailedData();
+    }
+
+    @GetMapping("/debug/{id}")
+    public ResponseEntity<ProfessorDetailDTO> getProfessorDetailedById(@PathVariable String id) {
+        try {
+            ProfessorDetailDTO professor = service.getProfessorDetailedDataById(id);
             return ResponseEntity.ok(professor);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
